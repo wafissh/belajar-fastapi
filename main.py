@@ -110,3 +110,19 @@ async def validation_error_handler(request: Request, exception: RequestValidatio
         {"status": status.HTTP_422_UNPROCESSABLE_CONTENT, "message": "Invalid Request"},
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
     )
+
+@app.get("/login", include_in_schema=False)
+async def login_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "login.html",
+        {"title": "Login"},
+    )
+    
+@app.get("/register", include_in_schema=False)
+async def register_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "register.html",
+        {"title": "Register"},
+    )
