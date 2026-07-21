@@ -138,7 +138,7 @@ async def update_post_full(
 @router.get("", response_model=list[ResponsePost])
 async def get_posts(db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
-        select(models.Post).options(selectinload(models.Post.author)),
+        select(models.Post).options(selectinload(models.Post.author)).order_by(models.Post.date_posted.desc()),
     )
     posts = result.scalars().all()
     return posts

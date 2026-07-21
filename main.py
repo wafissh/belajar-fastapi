@@ -33,7 +33,7 @@ app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 @app.get("/", name="home", include_in_schema=False)
 @app.get("/posts", name="posts", include_in_schema=False)
 async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(select(models.Post).options(selectinload(models.Post.author)))
+    result = await db.execute(select(models.Post).options(selectinload(models.Post.author)).order_by(models.Post.date_posted.desc()))
     posts = result.scalars().all()
     return templates.TemplateResponse(
         request, "home.html", {"posts": posts, "title": "Home Page"}
@@ -67,7 +67,7 @@ async def user_posts_page(
     result = await db.execute(
         select(models.Post)
         .options(selectinload(models.Post.author))
-        .where(models.Post.user_id == user_id),
+        .where(models.Post.user_id == user_id).order_by(models.Post.date_posted.desc()),
     )
     posts = result.scalars().all()
     return templates.TemplateResponse(
@@ -103,9 +103,10 @@ async def general_http_exception_handler(request: Request, exception: StarletteH
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(request: Request, exception: RequestValidationError):
     if request.url.path.startswith("/api"):
-        return await http_exception_handler(request, exception)
+        return await request_validation_exception_handler(request, exception)
     return templates.TemplateResponse(
         request,
-        "404.html",
+        "error.html",
         {"status": status.HTTP_422_UNPROCESSABLE_CONTENT, "message": "Invalid Request"},
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
     )
