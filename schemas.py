@@ -24,7 +24,7 @@ class UserPrivate(UserPublic):
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, max_length=50)
     email: EmailStr | None = Field(default=None,max_length=120)
-    image_file: str | None = Field(default=None, min_length=1, max_length=200)
+
 
 class Token(BaseModel):
     access_token: str
@@ -40,7 +40,6 @@ class UpdatePost(BaseModel):
     content: str | None = Field(default=None, min_length=1)
 
 class CreatePost(postBase):
-    user_id:int #TEMPORARY
     pass 
 
 class ResponsePost(postBase):
@@ -50,3 +49,10 @@ class ResponsePost(postBase):
     user_id:int
     date_posted: datetime
     author: UserPublic
+
+class PaginatedPostResponse(BaseModel):
+    posts: list[ResponsePost]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
