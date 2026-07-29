@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
+from config import settings
 import models
 from database import get_db
 from schemas import *
@@ -50,8 +50,13 @@ async def delete_post(post_id: int, current_user:CurrentUser, db: Annotated[Asyn
     await db.delete(post)
     await db.commit()
     
-@router.get("/{user_id}/posts", response_model=list[ResponsePost])
-async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+@router.get("/{user_id}/posts", response_model=PaginatedPostResponse)
+async def get_user_posts(
+    user_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+):
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
@@ -59,13 +64,33 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+
+    count_result = await db.execute(
+        select(func.count())
+        .select_from(models.Post)
+        .where(models.Post.user_id == user_id),
+    )
+    total = count_result.scalar() or 0
+
     result = await db.execute(
         select(models.Post)
         .options(selectinload(models.Post.author))
-        .where(models.Post.user_id == user_id),
+        .where(models.Post.user_id == user_id)
+        .order_by(models.Post.date_posted.desc())
+        .offset(skip)
+        .limit(limit),
     )
     posts = result.scalars().all()
-    return posts
+
+    has_more = skip + len(posts) < total
+
+    return PaginatedPostResponse(
+        posts=[ResponsePost.model_validate(post) for post in posts],
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=has_more,
+    )
 
 #----------------- get_post by id------------------ api/posts
 @router.get("/{post_id}", response_model=ResponsePost)
@@ -147,10 +172,34 @@ async def update_post_full(
     await db.refresh(post, attribute_names=["author"])
     return post
 
-@router.get("", response_model=list[ResponsePost])
-async def get_posts(db: Annotated[AsyncSession, Depends(get_db)]):
+@router.get("", response_model=PaginatedPostResponse)
+async def get_posts(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,):
+    
+    count_result = await db.execute(select(func.count()).select_from(models.Post))
+    total = count_result.scalar() or 0
+    
+    
     result = await db.execute(
-        select(models.Post).options(selectinload(models.Post.author)).order_by(models.Post.date_posted.desc()),
+        select(models.Post)
+        .options(selectinload(models.Post.author))
+        .order_by(models.Post.date_posted.desc())
+        .offset(skip)
+        .limit(limit)
     )
     posts = result.scalars().all()
+    
+    has_more = skip + len(posts) < total
+    
+    return PaginatedPostResponse(
+        posts=[ResponsePost.model_validate(post) for post in posts],
+        total=total,
+        skip=skip,
+        limit=limit,
+        has_more=has_more,
+    )
+
+    
     return posts

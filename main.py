@@ -7,12 +7,12 @@ from typing import Annotated
 from contextlib import asynccontextmanager
 from fastapi.exception_handlers import (http_exception_handler, request_validation_exception_handler)
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 import models
 from database import Base, engine, get_db
-
+from config import settings
 from routers import posts, users
 
 @asynccontextmanager
@@ -30,17 +30,36 @@ templates = Jinja2Templates(directory="templates")
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 
-@app.get("/", name="home", include_in_schema=False)
-@app.get("/posts", name="posts", include_in_schema=False)
+@app.get("/", include_in_schema=False, name="home")
+@app.get("/posts", include_in_schema=False, name="posts")
 async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(select(models.Post).options(selectinload(models.Post.author)).order_by(models.Post.date_posted.desc()))
+    count_result = await db.execute(select(func.count()).select_from(models.Post))
+    total = count_result.scalar() or 0
+
+    result = await db.execute(
+        select(models.Post)
+        .options(selectinload(models.Post.author))
+        .order_by(models.Post.date_posted.desc())
+        .limit(settings.posts_per_page),
+    )
     posts = result.scalars().all()
+
+    has_more = len(posts) < total
+
     return templates.TemplateResponse(
-        request, "home.html", {"posts": posts, "title": "Home Page"}
+        request,
+        "home.html",
+        {
+            "posts": posts,
+            "title": "Home",
+            "limit": settings.posts_per_page,
+            "has_more": has_more,
+        },
     )
 
 
-@app.get("/posts/{post_id}", name="post", include_in_schema=False)
+
+@app.get("/posts/{post_id}", name="post_page", include_in_schema=False, )
 async def post_page(request: Request, post_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(models.Post).options(selectinload(models.Post.author)).where(models.Post.id == post_id))
     post = result.scalars().first()
@@ -64,18 +83,36 @@ async def user_posts_page(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+
+    count_result = await db.execute(
+        select(func.count())
+        .select_from(models.Post)
+        .where(models.Post.user_id == user_id),
+    )
+    total = count_result.scalar() or 0
+
     result = await db.execute(
         select(models.Post)
         .options(selectinload(models.Post.author))
-        .where(models.Post.user_id == user_id).order_by(models.Post.date_posted.desc()),
+        .where(models.Post.user_id == user_id)
+        .order_by(models.Post.date_posted.desc())
+        .limit(settings.posts_per_page),
     )
     posts = result.scalars().all()
+
+    has_more = len(posts) < total
+
     return templates.TemplateResponse(
         request,
         "user_posts.html",
-        {"posts": posts, "user": user, "title": f"{user.username}'s Posts"},
+        {
+            "posts": posts,
+            "user": user,
+            "title": f"{user.username}'s Posts",
+            "limit": settings.posts_per_page,
+            "has_more": has_more,
+        },
     )
-
 
 @app.exception_handler(StarletteHTTPException)
 async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
