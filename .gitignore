@@ -2,3 +2,6 @@
 __pycache__/
 .env
 .db
+media/
+populate_db.py
+populate_images/
