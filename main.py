@@ -11,14 +11,13 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 import models
-from database import Base, engine, get_db
+from database import engine, get_db
 from config import settings
 from routers import posts, users
 
 @asynccontextmanager
 async def lifespan(_app:FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    
     yield
     await engine.dispose()
 
