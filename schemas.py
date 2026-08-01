@@ -49,6 +49,7 @@ class ResponsePost(postBase):
     user_id:int
     date_posted: datetime
     author: UserPublic
+    likes: int
 
 class PaginatedPostResponse(BaseModel):
     posts: list[ResponsePost]

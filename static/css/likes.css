@@ -1,0 +1,31 @@
+.like-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.15s ease;
+}
+.heart-icon path {
+  fill: none;
+  stroke: #6c757d;
+  stroke-width: 1.6;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+.like-btn.liked .heart-icon path {
+  fill: #ed4956;
+  stroke: #ed4956;
+}
+.like-btn.pop { animation: heart-pop 0.35s ease; }
+@keyframes heart-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.35); }
+  50%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.like-count {
+  font-size: 0.9rem;
+  color: #6c757d;
+  min-width: 1.5em;
+}

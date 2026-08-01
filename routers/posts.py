@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from config import settings
@@ -203,3 +203,40 @@ async def get_posts(
 
     
     return posts
+
+@router.post("/{post_id}/likes")
+async def toggle_like(
+    post_id: int,
+    current_user:CurrentUser, 
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    result = await db.execute(
+    select(models.PostLike).where(
+        models.PostLike.user_id == current_user.id,  # Gunakan koma (,), bukan 'and'
+        models.PostLike.post_id == post_id,
+    )
+)
+    existing_likes = result.scalars().first()
+    if existing_likes:
+        await db.delete(existing_likes)
+        
+        await db.execute(
+            update(models.Post)
+            .where(models.Post.id == post_id)
+            .values(likes=models.Post.likes - 1)  
+        )   
+        await db.commit()
+        return {"status":"unliked"}
+    else:
+        new_likes = models.PostLike(post_id=post_id, user_id = current_user.id)
+        db.add(new_likes)
+        
+        await db.execute(
+                    update(models.Post)
+                    .where(models.Post.id == post_id)
+                    .values(likes=models.Post.likes + 1)  
+                ) 
+        
+        await db.commit()
+        return {"status": "liked"}
+    

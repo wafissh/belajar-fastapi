@@ -2,26 +2,7 @@
 {% block content %}
   <div id="postsContainer">
   {% for post in posts %}
-    <article class="content-section py-3 px-4 mb-4">
-      <div class="d-flex align-items-start gap-4">
-        <img class="rounded-circle article-img flex-shrink-0"
-             src="{{ post.author.image_path }}"
-             alt="{{ post.author.username }}'s profile picture"
-             width="64"
-             height="64"
-             loading="lazy">
-        <div class="flex-grow-1">
-          <div class="article-metadata mb-2">
-            <a class="me-2" href="{{url_for('user_posts', user_id=post.author.id)}}">{{ post.author.username }}</a>
-            <small class="text-body-secondary">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
-          </div>
-          <h2>
-            <a class="article-title" href="{{ url_for('post_page', post_id=post.id) }}">{{ post.title }}</a>
-          </h2>
-          <p class="article-content">{{ post.content }}</p>
-        </div>
-      </div>
-    </article>
+    {% include "post_card.html" %}
   {% endfor %}
   </div>
 
@@ -32,9 +13,12 @@
   {% endif %}
 {% endblock content %}
 
+
+
 ## home page - scripts block
 {% block scripts %}
   <script type="module">
+
   import { escapeHtml, formatDate } from '/static/js/utils.js';
 
   // Pagination state - initialized from server-rendered values
@@ -60,6 +44,20 @@
               <a class="article-title" href="/posts/${post.id}">${escapeHtml(post.title)}</a>
             </h2>
             <p class="article-content">${escapeHtml(post.content)}</p>
+            <div class="like-wrapper d-flex align-items-center gap-2">
+              <button
+                class="like-btn"
+                data-post-id="${post.id}"
+                aria-label="Like this post"
+                aria-pressed="false">
+                <svg class="heart-icon" viewBox="0 0 24 24" width="26" height="26">
+                  <path d="M12 21s-6.7-4.35-9.3-8.28C1.05 10.6 1 8.2 2.7 6.5
+                           4.2 5 6.6 5.1 8 6.6l4 4.2 4-4.2c1.4-1.5 3.8-1.6 5.3-.1
+                           1.7 1.7 1.65 4.1 0 6.22C18.7 16.65 12 21 12 21z"/>
+                </svg>
+              </button>
+              <span class="like-count">${post.likes_count || 0}</span>
+            </div>
           </div>
         </div>
       </article>

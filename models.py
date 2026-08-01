@@ -70,3 +70,18 @@ class PasswordResetToken(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="reset_tokens")
+    
+class PostLike(Base):
+    __tablename__ = "post_likes"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+            ForeignKey("users.id"),
+            nullable=False,
+            index=True,
+        )
+    post_id: Mapped[int] = mapped_column(
+                ForeignKey("posts.id"),
+                nullable=False,
+                index=True,
+            )
+    
