@@ -34,7 +34,7 @@ This project is a **backend learning journey** — built step-by-step while stud
 ---
 
 ## 🏗️ Architecture
-
+```
 Client (Browser / API Consumer)
          │
          ▼
@@ -58,7 +58,7 @@ Client (Browser / API Consumer)
  PostgreSQL  S3/     SMTP
  (Database)  Media   (Email) (1/4)
 
-
+```
 ---
 
 ## ✨ Features
