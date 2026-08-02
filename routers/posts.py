@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from config import settings
 import models
 from database import get_db
-from schemas import *
+from schemas import PaginatedPostResponse, ResponsePost, UpdatePost, CreatePost
 from auth import CurrentUser
 router = APIRouter()
 
@@ -166,7 +166,7 @@ async def update_post_full(
         
     post.title = post_data.title
     post.content = post_data.content
-    post.user_id = current_user.user_id
+    post.user_id = current_user.id
 
     await db.commit()
     await db.refresh(post, attribute_names=["author"])
