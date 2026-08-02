@@ -216,7 +216,7 @@ docker run -p 8080:8080 --env-file .env blog-api (2/4)
 | `GET` | `/api/posts/user/{id}` | Get user's posts | ❌ |
 
 ---
-
+```
 ## 🗃️ Database Schema
 ┌──────────────┐     ┌──────────────┐     ┌────────────────────┐
 │    users     │     │    posts     │     │  password_reset    │
@@ -235,8 +235,9 @@ docker run -p 8080:8080 --env-file .env blog-api (2/4)
                      │ user_id (FK) │
                      │ post_id (FK) │
                      └──────────────┘
+```
 ---
-
+```
 ## 📁 Project Structure
 belajar-fastapi/
 ├── alembic/                 # Database migrations
@@ -264,7 +265,7 @@ belajar-fastapi/
 ├── pyproject.toml           # Project metadata & deps
 └── uv.lock                  # Locked dependencies (3/4)
 
-
+```
 ---
 
 ## 🛠️ Tech Stack
