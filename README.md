@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📝 Blog API
+# 📝 Blog using FastAPI
 
 ### Async FastAPI Blog Platform with Authentication & Image Processing
 
