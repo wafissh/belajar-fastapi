@@ -202,7 +202,7 @@ async def get_posts(
     )
 
     
-    return posts
+    
 
 @router.post("/{post_id}/likes")
 async def toggle_like(
