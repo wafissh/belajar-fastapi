@@ -108,7 +108,7 @@ Client (Browser / API Consumer)
 
 Tests use **pytest** with **httpx** for async HTTP testing, **moto** for S3 mocking, and transactional rollback for isolation.
 bash
-
+```
 Run all testsuv run pytest
 
 Run with verbose output
@@ -116,7 +116,7 @@ uv run pytest -v
 
 Run specific test file
 uv run pytest test/test_posts.p
-
+```
 
 ### Test Coverage
 
@@ -137,18 +137,20 @@ uv run pytest test/test_posts.p
 - [uv](https://docs.astral.sh/uv/) package manager
 
 ### 1. Clone & Setup
+```
 bash
 git clone https://github.com/wafissh/belajar-fastapi.gitcd belajar-fastapi
 
 Install dependencies
 uv sync --all-groups
-
+```
 
 ### 2. Configure Environment
+```
 bash
 cp .env.example .env
 Edit .env with your settings
-
+```
 Required environment variables:
 
 | Variable | Description | Example |
@@ -162,6 +164,7 @@ bash
 Apply migrationsuv run alembic upgrade head
 
 ### 4. Start the Server
+
 bash
 Development (with auto-reload)uv run fastapi dev
 
@@ -173,9 +176,10 @@ API docs available at: `http://localhost:8000/docs`
 ### 5. Docker (Alternative)
 
 bash
+```
 docker build -t blog-api .
 docker run -p 8080:8080 --env-file .env blog-api (2/4)
-
+```
 
 ---
 
