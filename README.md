@@ -137,17 +137,20 @@ uv run pytest test/test_posts.p
 - [uv](https://docs.astral.sh/uv/) package manager
 
 ### 1. Clone & Setup
-```
-bash
-git clone https://github.com/wafissh/belajar-fastapi.gitcd belajar-fastapi
 
+bash
+```
+git clone https://github.com/wafissh/belajar-fastapi.gitcd belajar-fastapi
+```
 Install dependencies
+```
 uv sync --all-groups
 ```
 
 ### 2. Configure Environment
-```
+
 bash
+```
 cp .env.example .env
 Edit .env with your settings
 ```
@@ -161,16 +164,21 @@ Required environment variables:
 ### 3. Run Database Migrations
 
 bash
-Apply migrationsuv run alembic upgrade head
-
+Apply migrations
+```
+uv run alembic upgrade head
+```
 ### 4. Start the Server
 
 bash
-Development (with auto-reload)uv run fastapi dev
-
+Development (with auto-reload)
+```
+uv run fastapi dev
+```
 Production
+```
 uv run fastapi run
-
+```
 API docs available at: `http://localhost:8000/docs`
 
 ### 5. Docker (Alternative)
