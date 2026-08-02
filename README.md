@@ -108,13 +108,18 @@ Client (Browser / API Consumer)
 
 Tests use **pytest** with **httpx** for async HTTP testing, **moto** for S3 mocking, and transactional rollback for isolation.
 bash
-```
-Run all testsuv run pytest
 
+Run all tests
+```
+uv run pytest
+```
 Run with verbose output
+```
 uv run pytest -v
+```
 
 Run specific test file
+```
 uv run pytest test/test_posts.p
 ```
 
